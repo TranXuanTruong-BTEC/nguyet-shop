@@ -10,4 +10,8 @@ export default defineConfig({
         }),
         tailwindcss(),
     ],
+    build: {
+        outDir: 'dist', // thêm dòng này
+        emptyOutDir: true, // xóa sạch trước khi build
+    },
 });
