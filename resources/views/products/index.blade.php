@@ -100,22 +100,19 @@
             <!-- Products Grid -->
             <div class="col-lg-9">
                 <!-- Results Header -->
-                <div class="d-flex justify-content-between align-items-center mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
                     <div>
-                        <h4 class="mb-1 fw-bold text-dark">
-                            <i class="fas fa-shopping-bag me-2"></i>Sản phẩm
-                        </h4>
-                        <p class="text-muted mb-0">
-                            <i class="fas fa-info-circle me-1"></i>
+                        <h5 class="mb-1 fw-bold text-dark">Sản phẩm</h5>
+                        <small class="text-muted">
                             Hiển thị {{ $products->firstItem() ?? 0 }}-{{ $products->lastItem() ?? 0 }} 
                             trong {{ $products->total() }} sản phẩm
-                        </p>
+                        </small>
                     </div>
-                    <div class="d-flex gap-2">
-                        <button class="btn btn-outline-primary active" id="grid-view" title="Xem dạng lưới">
+                    <div class="d-flex gap-1">
+                        <button class="btn btn-sm btn-outline-secondary active" id="grid-view" title="Xem dạng lưới">
                             <i class="fas fa-th"></i>
                         </button>
-                        <button class="btn btn-outline-primary" id="list-view" title="Xem dạng danh sách">
+                        <button class="btn btn-sm btn-outline-secondary" id="list-view" title="Xem dạng danh sách">
                             <i class="fas fa-list"></i>
                         </button>
                     </div>
@@ -125,62 +122,49 @@
                 <div class="row g-4" id="products-grid">
                     @forelse($products as $product)
                     <div class="col-lg-4 col-md-6">
-                        <div class="card product-card h-100 shadow-sm border-0">
-                            <div class="position-relative overflow-hidden">
+                        <div class="card product-card h-100 border-0">
+                            <div class="position-relative">
                                 <img src="{{ \App\Helpers\ImageHelper::getProductImage($product, '300x300') }}" 
                                      alt="{{ $product->name }}" 
                                      class="card-img-top product-image">
-                                @if($product->sale_price)
-                                <div class="product-badge discount-badge">
-                                    <i class="fas fa-percentage me-1"></i>-{{ $product->discount_percentage }}%
+                                @if($product->sale_price || $product->is_featured)
+                                <div class="product-badges">
+                                    @if($product->sale_price)
+                                    <span class="badge bg-danger">-{{ $product->discount_percentage }}%</span>
+                                    @endif
+                                    @if($product->is_featured)
+                                    <span class="badge bg-warning text-dark">Nổi bật</span>
+                                    @endif
                                 </div>
                                 @endif
-                                @if($product->is_featured)
-                                <div class="product-badge featured-badge">
-                                    <i class="fas fa-star me-1"></i>Nổi bật
-                                </div>
-                                @endif
-                                <div class="product-overlay">
-                                    <a href="{{ route('products.show', $product->slug) }}" class="btn btn-light btn-sm">
-                                        <i class="fas fa-eye me-1"></i>Xem nhanh
-                                    </a>
-                                </div>
                             </div>
-                            <div class="card-body d-flex flex-column">
-                                <div class="mb-2">
-                                    <span class="badge bg-light text-dark">{{ $product->category->name }}</span>
+                            <div class="card-body">
+                                <div class="product-category mb-1">
+                                    <small class="text-muted">{{ $product->category->name }}</small>
                                 </div>
-                                <h6 class="card-title fw-bold text-dark mb-2">{{ $product->name }}</h6>
+                                <h6 class="product-title mb-2">{{ $product->name }}</h6>
                                 
-                                <div class="d-flex justify-content-between align-items-center mb-3">
-                                    <div>
-                                        @if($product->sale_price)
-                                        <span class="price fw-bold text-danger fs-5">{{ number_format($product->sale_price, 0, ',', '.') }}đ</span>
-                                        <span class="price-old text-muted text-decoration-line-through ms-2">{{ number_format($product->price, 0, ',', '.') }}đ</span>
-                                        @else
-                                        <span class="price fw-bold text-dark fs-5">{{ number_format($product->price, 0, ',', '.') }}đ</span>
-                                        @endif
-                                    </div>
-                                    <small class="text-muted">
-                                        <i class="fas fa-box me-1"></i>{{ $product->stock_quantity }}
-                                    </small>
+                                <div class="product-price mb-3">
+                                    @if($product->sale_price)
+                                    <span class="current-price">{{ number_format($product->sale_price, 0, ',', '.') }}đ</span>
+                                    <span class="old-price">{{ number_format($product->price, 0, ',', '.') }}đ</span>
+                                    @else
+                                    <span class="current-price">{{ number_format($product->price, 0, ',', '.') }}đ</span>
+                                    @endif
                                 </div>
                                 
-                                <div class="mt-auto">
-                                    <div class="d-flex gap-2">
-                                        <a href="{{ route('products.show', $product->slug) }}" 
-                                           class="btn btn-primary btn-sm flex-fill">
-                                            <i class="fas fa-eye me-1"></i>Xem chi tiết
-                                        </a>
-                                        <button class="btn btn-outline-primary btn-sm add-to-cart" 
-                                                data-product-id="{{ $product->id }}"
-                                                data-product-name="{{ $product->name }}"
-                                                data-product-price="{{ $product->current_price }}"
-                                                data-product-image="{{ \App\Helpers\ImageHelper::getProductImage($product, '300x300') }}"
-                                                title="Thêm vào giỏ hàng">
-                                            <i class="fas fa-cart-plus"></i>
-                                        </button>
-                                    </div>
+                                <div class="product-actions">
+                                    <a href="{{ route('products.show', $product->slug) }}" 
+                                       class="btn btn-primary btn-sm w-100 mb-2">
+                                        Xem chi tiết
+                                    </a>
+                                    <button class="btn btn-outline-primary btn-sm w-100 add-to-cart" 
+                                            data-product-id="{{ $product->id }}"
+                                            data-product-name="{{ $product->name }}"
+                                            data-product-price="{{ $product->current_price }}"
+                                            data-product-image="{{ \App\Helpers\ImageHelper::getProductImage($product, '300x300') }}">
+                                        <i class="fas fa-cart-plus me-1"></i>Thêm vào giỏ
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -241,80 +225,116 @@
     }
 
     .product-card {
-        transition: all 0.3s ease;
-        border-radius: 15px;
-        overflow: hidden;
+        transition: all 0.2s ease;
+        border-radius: 8px;
+        border: 1px solid #f0f0f0;
+        background: white;
     }
 
     .product-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        border-color: #e0e0e0;
     }
 
     .product-image {
-        height: 250px;
+        height: 200px;
         object-fit: cover;
-        transition: transform 0.3s ease;
+        border-radius: 8px 8px 0 0;
     }
 
-    .product-card:hover .product-image {
-        transform: scale(1.05);
-    }
-
-    .product-badge {
+    .product-badges {
         position: absolute;
-        top: 10px;
-        right: 10px;
-        padding: 5px 10px;
-        border-radius: 20px;
+        top: 8px;
+        left: 8px;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .product-badges .badge {
+        font-size: 0.7rem;
+        padding: 4px 8px;
+        border-radius: 4px;
+    }
+
+    .product-category {
         font-size: 0.8rem;
-        font-weight: bold;
-        z-index: 2;
+        color: #6c757d;
     }
 
-    .discount-badge {
-        background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
-        color: white;
-        box-shadow: 0 2px 10px rgba(255, 107, 107, 0.3);
+    .product-title {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #333;
+        line-height: 1.3;
+        height: 2.6rem;
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
     }
 
-    .featured-badge {
-        background: linear-gradient(45deg, #e74c3c, #c0392b);
-        color: white;
-        box-shadow: 0 2px 10px rgba(231, 76, 60, 0.3);
-    }
-
-    .product-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0,0,0,0.7);
+    .product-price {
         display: flex;
         align-items: center;
-        justify-content: center;
-        opacity: 0;
-        transition: opacity 0.3s ease;
+        gap: 8px;
     }
 
-    .product-card:hover .product-overlay {
-        opacity: 1;
+    .current-price {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #e74c3c;
+    }
+
+    .old-price {
+        font-size: 0.85rem;
+        color: #999;
+        text-decoration: line-through;
+    }
+
+    .product-actions {
+        margin-top: auto;
+    }
+
+    .product-actions .btn {
+        font-size: 0.85rem;
+        padding: 6px 12px;
+        border-radius: 6px;
     }
 
     .list-view .product-card {
         display: flex;
         flex-direction: row;
+        align-items: center;
     }
 
     .list-view .product-card .product-image {
-        width: 200px;
-        height: 150px;
+        width: 120px;
+        height: 120px;
         object-fit: cover;
+        border-radius: 8px;
     }
 
     .list-view .product-card .card-body {
         flex: 1;
+        padding: 1rem;
+    }
+
+    .list-view .product-title {
+        height: auto;
+        -webkit-line-clamp: 1;
+    }
+
+    .list-view .product-actions {
+        margin-top: 0;
+        display: flex;
+        gap: 8px;
+    }
+
+    .list-view .product-actions .btn {
+        flex: 1;
+        margin-bottom: 0;
     }
 
     .price {
@@ -327,10 +347,10 @@
         text-decoration: line-through;
     }
 
-    .btn-outline-primary.active {
-        background-color: var(--primary-color);
+    .btn-outline-secondary.active {
+        background-color: #6c757d;
         color: white;
-        border-color: var(--primary-color);
+        border-color: #6c757d;
     }
 
     .pagination .page-link {
@@ -377,11 +397,7 @@
 document.getElementById('grid-view').addEventListener('click', function() {
     document.getElementById('products-grid').classList.remove('list-view');
     this.classList.add('active');
-    this.classList.remove('btn-outline-primary');
-    this.classList.add('btn-primary');
     document.getElementById('list-view').classList.remove('active');
-    document.getElementById('list-view').classList.add('btn-outline-primary');
-    document.getElementById('list-view').classList.remove('btn-primary');
     
     // Save preference
     localStorage.setItem('product-view', 'grid');
@@ -390,11 +406,7 @@ document.getElementById('grid-view').addEventListener('click', function() {
 document.getElementById('list-view').addEventListener('click', function() {
     document.getElementById('products-grid').classList.add('list-view');
     this.classList.add('active');
-    this.classList.remove('btn-outline-primary');
-    this.classList.add('btn-primary');
     document.getElementById('grid-view').classList.remove('active');
-    document.getElementById('grid-view').classList.add('btn-outline-primary');
-    document.getElementById('grid-view').classList.remove('btn-primary');
     
     // Save preference
     localStorage.setItem('product-view', 'list');
